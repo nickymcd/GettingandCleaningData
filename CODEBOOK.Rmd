@@ -1,0 +1,145 @@
+---
+title: "Codebook for producing tidy data"
+author: "Nicola McDougal"
+date: "October 19, 2015"
+output: html_document
+---
+# Raw Data 
+The raw data was the Human Activity Recognition Using Smartphones Dataset[1] from the UCI Machine Learning Repository.
+
+The datasets were obtained from Human Activity experiments carried out with a group of 30 volunteers within an age bracket of 19-48 years. Each person performed six activities (WALKING, WALKING_UPSTAIRS, WALKING_DOWNSTAIRS, SITTING, STANDING, LAYING) wearing a smartphone (Samsung Galaxy S II) on the waist. Using its embedded accelerometer and gyroscope, the experiments captured 3-axial linear acceleration and 3-axial angular velocity at a constant rate of 50Hz.
+
+For each record in the dataset the following is provided:
+
+*  Triaxial acceleration from the accelerometer (total acceleration) and the estimated body acceleration. 
+
+*  Triaxial Angular velocity from the gyroscope. 
+*  A 561-feature vector with time and frequency domain variables. 
+* Its activity label. 
+* An identifier of the subject who carried out the experiment.
+
+The obtained dataset has been randomly partitioned into two sets, where 70% of the volunteers was selected for generating the training data and 30% the test data. 
+
+The original dataset includes the following files:
+
+*  'README.txt'
+
+*  'features_info.txt': Shows information about the variables used on the feature vector.
+
+*  'features.txt': List of all features.
+
+*  'activity_labels.txt': Links the class labels with their activity name.
+
+* 'train/X_train.txt': Training set.
+
+*  'train/y_train.txt': Training labels.
+
+*  'test/X_test.txt': Test set.
+
+*  'test/y_test.txt': Test labels.
+
+The following files are available for the train and test data. Their descriptions are equivalent. 
+
+*  'train/subject_train.txt': Each row identifies the subject who performed the activity for each window sample. Its range is from 1 to 30. 
+
+* 'train/Inertial Signals/total_acc_x_train.txt': The acceleration signal from the smartphone accelerometer X axis in standard gravity units 'g'. Every row shows a 128 element vector. The same description applies for the 'total_acc_x_train.txt' and 'total_acc_z_train.txt' files for the Y and Z axis. 
+
+* 'train/Inertial Signals/body_acc_x_train.txt': The body acceleration signal obtained by subtracting the gravity from the total acceleration. 
+
+* 'train/Inertial Signals/body_gyro_x_train.txt': The angular velocity vector measured by the gyroscope for each window sample. The units are radians/second. 
+
+_Notes_
+
+*  Features are normalized and bounded within [-1,1].
+*   Each feature vector is a row on the text file.
+
+For more information about this dataset contact: activityrecognition@smartlab.ws
+
+##Feature Selection
+
+It is not necessary to explain here which signals are used during data collection, as this is outlined in the features_info.txt included with the dataset.
+
+This is the set of variables that were estimated from these signals:
+
+*  mean(): Mean value
+*  std(): Standard deviation
+*  mad(): Median absolute deviation 
+*  max(): Largest value in array
+*  min(): Smallest value in array
+*  sma(): Signal magnitude area
+*  energy(): Energy measure. Sum of the squares divided by the number of values. 
+*  iqr(): Interquartile range 
+*  entropy(): Signal entropy
+*  arCoeff(): Autorregresion coefficients with Burg order equal to 4
+*  correlation(): correlation coefficient between two signals
+*  maxInds(): index of the frequency component with largest magnitude
+*  meanFreq(): Weighted average of the frequency components to obtain a mean frequency
+*  skewness(): skewness of the frequency domain 
+*  signal kurtosis(): kurtosis of the frequency 
+*  domain signal bandsEnergy(): Energy of a frequency interval within the 64 bins of the FFT of each window.
+angle(): Angle between to vectors.
+
+_Notes_
+
+*  3-axial signal collection denotes, x,y,z in 3 directions
+*  f = frequency domain; t = time domain
+
+# Transformation of Data
+
+The raw data sets are processed using run_analysis.R script.Transformation was carried out using the plyr package. Information on the plyr package can be found [2]and [3]
+
+##Merge training and test sets
+
+Test and training data (X_train.txt, X_test.txt), subject ids (subject_train.txt, subject_test.txt) and activity ids (y_train.txt, y_test.txt) are merged to obtain a single data set. Variables are assigned labels from features.txt
+
+##Extracts only mean and standard deviation for each measurement
+
+An intermediate data set, _sensor_data_mean_std_ is made from the merged data set with only the values with labels that contain "mean", and variables with labels that contain "std".
+
+##Use descriptive activity names
+
+A new column is added to _sensor_data_mean_std_ with the activity description. Activity id column is used to look up descriptions in activity_labels.txt.
+
+##Appropriate Labels
+
+More appropriate labels are given to
+
+1.  remove parentheses, dashes, white space or commas.
+
+2.  give more description to variable labels.
+
+##Create a tidy data set
+
+From _sensor_data_mean_std_ a final tidy data set, _sensor_avg_by_act_sub_ is created where numeric variables are averaged for each activity and each subject.
+
+The _sensor_avg_by_act_sub_ contains 10299 observations with 81 variables divided by:
+
+1. Activity: WALKING, WALKING_UPSTAIRS, WALKING_DOWNSTAIRS, SITTING, STANDING, LAYING
+2. Subject: a number identifying the subject in that experiment
+3.  79 features with time and frequency domain signal variables
+
+A list of changed variables are below. The original variable is listed first, followed by the new, more descriptive variable
+
+* 'Acc',"Acceleration" 
+* 'GyroJerk',"AngularAcceleration"
+* 'Gyro',"AngularVelocity"
+*  'Mag',"Magnitude"
+* '^t',"TimeDomain." 
+* '^f',"FrequencyDomain."
+* '\\.mean',".Mean"
+* '\\.std',".StandardDeviation"
+* 'Freq\\.',"Frequency."
+* 'Freq$',"Frequency"
+
+For a full description of variables refer to the features_info.txt file in the raw data set.
+
+The tidy data set is written to the file sensor_avg_by_act_sub.txt
+
+# References
+1. Human Activity Recognition Using Smartphones Dataset URL: http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
+
+2. Plyr information http://plyr.had.co.nz
+
+3. Plyr information http://www.r-bloggers.com/a-quick-primer-on-split-apply-combine-problems/
+
+
